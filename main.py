@@ -182,3 +182,4 @@ if __name__ == "__main__":
     MainWindow.setWindowTitle("Calculator")
     MainWindow.show()
     sys.exit(app.exec_())
+

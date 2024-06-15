@@ -1,29 +1,57 @@
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5 import QtGui, QtCore
-from PyQt5 import QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
+import math
 
+style_circle = """
+QPushButton {
+    background-color: #00008B; /* Dark blue color */
+    color: white;
+    border: none;
+    border-radius: 45px; /* Make the border-radius half of the button height to achieve a full circle */
+    padding: 10px;
+}
+QPushButton:hover {
+    background-color: #1E90FF; /* Lighter shade of blue on hover */
+    border-radius: 45px; /* Match the border radius */
+    padding: 10px;
+}
+"""
 
-
-style = "QPushButton { background-color: #007bff; color: white; border: none; }"
+style_default = """
+QPushButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 15px; /* Adjust the radius as per your preference */
+    padding: 10px; /* Add padding to make buttons slightly larger */
+}
+QPushButton:hover {
+    background-color: #0056b3;
+    border-radius: 15px; /* Match the border radius and padding */
+    padding: 10px; /* Match the padding */
+}
+"""
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     fontname = "SF Pro"
-    diml = 1280
-    dimw = 720
-    btw = 256
-    bth = 125
-    lew = 1260
-    leh = 120
+
     def hoverEnterEvent(self, button):
-        button.setStyleSheet("background-color: red; color: white;")
+        if button.text() in ["%", "!", "/", "+", "-", "=", "(", ")", "*", "^", "√", "ClrScr"]:
+            button.setStyleSheet("background-color: #1E90FF; color: white; border-radius: 45px; padding: 10px;")
+        else:
+            button.setStyleSheet("background-color: #00008B; color: white; border-radius: 15px; padding: 10px;")
 
     def hoverLeaveEvent(self, button):
-        button.setStyleSheet("background-color: #007bff; color: white; border: none;")
+        if button.text() in ["%", "!", "/", "+", "-", "=", "(", ")", "*", "^", "√", "ClrScr"]:
+            button.setStyleSheet("background-color: #00008B; color: white; border: none; border-radius: 45px; padding: 10px;")
+        else:
+            button.setStyleSheet("background-color: #007bff; color: white; border: none; border-radius: 15px; padding: 10px;")
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Calculator")
-        MainWindow.setFixedSize(800, 680)
+        MainWindow.setFixedSize(550, 680)
         font = QtGui.QFont(self.fontname)
         font.setPointSize(12)
         MainWindow.setFont(font)
@@ -34,345 +62,123 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
 
-
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
         self.lineEdit.setFont(font)
         self.lineEdit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit.setFixedSize(690, 90)
-        self.gridLayout.addWidget(self.lineEdit, 0, 0, 1, 1)
-        self.pushButton_1 = QtWidgets.QPushButton(self.centralwidget)
+        self.lineEdit.setFixedSize(500, 90)
+        self.gridLayout.addWidget(self.lineEdit, 0, 0, 1, 5)
         self.lineEdit.setStyleSheet("color: white;")
 
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_1.sizePolicy().hasHeightForWidth())
-        self.pushButton_1.setSizePolicy(sizePolicy)
+        button_texts = [
+            "7", "8", "9", "/",
+            "4", "5", "6", "*",
+            "1", "2", "3", "-",
+            "0", "00", ".", "+",
+            "(", ")", "ClrScr", "=",
+            "%", "√", "^", "!"  # Added exponentiation and factorial buttons
+        ]
 
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_1.setFont(font)
-        self.pushButton_1.setFixedSize(150, 90)
-        self.pushButton_1.setObjectName("pushButton_1")
-        self.gridLayout.addWidget(self.pushButton_1, 1, 0, 1, 2)
-        self.pushButton_1.clicked.connect(lambda: self.setEditText(self.pushButton_1, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_1.setStyleSheet(style)
-        self.pushButton_1.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_1)
-        self.pushButton_1.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_1)       
+        positions = [(i // 4 + 1, i % 4) for i in range(len(button_texts))]
 
-
-        self.pushButton_5 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_5.setFont(font)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.pushButton_5.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_5, 1, 1, 1, 1)
-        self.pushButton_5.clicked.connect(lambda: self.setEditText(self.pushButton_5, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_5.setStyleSheet(style)
-        self.pushButton_5.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_5)
-        self.pushButton_5.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_5) 
-
-        self.pushButton_9 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_9.setFont(font)
-        self.pushButton_9.setObjectName("pushButton_9")
-        self.pushButton_9.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_9, 1, 2, 1, 1)
-        self.pushButton_9.clicked.connect(lambda: self.setEditText(self.pushButton_9, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_9.setStyleSheet(style)
-        self.pushButton_9.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_9)
-        self.pushButton_9.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_9) 
-
-        self.pushButton_13 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_13.setFont(font)
-        self.pushButton_13.setObjectName("pushButton_13")
-        self.pushButton_13.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_13, 1, 3, 1, 1)
-        self.pushButton_13.clicked.connect(lambda: self.setEditText(self.pushButton_13, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_13.setStyleSheet(style)
-        self.pushButton_13.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_13)
-        self.pushButton_13.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_13) 
-
-        self.pushButton_17 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_17.setFont(font)
-        self.pushButton_17.setObjectName("pushButton_17")
-        self.pushButton_17.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_17, 1, 4, 1, 1)
-        self.pushButton_17.clicked.connect(lambda: self.setEditText(self.pushButton_17, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_17.setStyleSheet(style)
-        self.pushButton_17.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_17)
-        self.pushButton_17.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_17) 
-
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_2.setFont(font)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_2, 2, 0, 1, 1)
-        self.pushButton_2.clicked.connect(lambda: self.setEditText(self.pushButton_2, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_2.setStyleSheet(style)
-        self.pushButton_2.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_2)
-        self.pushButton_2.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_2) 
-
-        self.pushButton_6 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_6.setFont(font)
-        self.pushButton_6.setObjectName("pushButton_6")
-        self.pushButton_6.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_6, 2, 1, 1, 1)
-        self.pushButton_6.clicked.connect(lambda: self.setEditText(self.pushButton_6, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_6.setStyleSheet(style)
-        self.pushButton_6.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_6)
-        self.pushButton_6.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_6) 
-
-        self.pushButton_10 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_10.setFont(font)
-        self.pushButton_10.setObjectName("pushButton_10")
-        self.pushButton_10.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_10, 2, 2, 1, 1)
-        self.pushButton_10.clicked.connect(lambda: self.setEditText(self.pushButton_10, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_10.setStyleSheet(style)
-        self.pushButton_10.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_10)
-        self.pushButton_10.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_10) 
-
-
-        self.pushButton_14 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_14.setFont(font)
-        self.pushButton_14.setObjectName("pushButton_14")
-        self.pushButton_14.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_14, 2, 3, 1, 1)
-        self.pushButton_14.clicked.connect(lambda: self.setEditText(self.pushButton_14, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_14.setStyleSheet(style)
-        self.pushButton_14.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_14)
-        self.pushButton_14.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_14) 
-
-        self.pushButton_18 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_18.setFont(font)
-        self.pushButton_18.setObjectName("pushButton_18")
-        self.pushButton_18.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_18, 2, 4, 1, 1)
-        self.pushButton_18.clicked.connect(lambda: self.setEditText(self.pushButton_18, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_18.setStyleSheet(style)
-        self.pushButton_18.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_18)
-        self.pushButton_18.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_18) 
-
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_3.setFont(font)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_3.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_3, 3, 0, 1, 1)
-        self.pushButton_3.clicked.connect(lambda: self.setEditText(self.pushButton_3, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_3.setStyleSheet(style)
-        self.pushButton_3.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_3)
-        self.pushButton_3.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_3) 
-
-        self.pushButton_7 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_7.setFont(font)
-        self.pushButton_7.setObjectName("pushButton_7")
-        self.pushButton_7.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_7, 3, 1, 1, 1)
-        self.pushButton_7.clicked.connect(lambda: self.setEditText(self.pushButton_7, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_7.setStyleSheet(style)
-        self.pushButton_7.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_7)
-        self.pushButton_7.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_7) 
-
-        self.pushButton_11 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_11.setFont(font)
-        self.pushButton_11.setObjectName("pushButton_11")
-        self.pushButton_11.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_11, 3, 2, 1, 1)
-        self.pushButton_11.clicked.connect(lambda: self.setEditText(self.pushButton_11, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_11.setStyleSheet(style)
-        self.pushButton_11.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_11)
-        self.pushButton_11.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_11) 
-
-        self.pushButton_15 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_15.setFont(font)
-        self.pushButton_15.setObjectName("pushButton_15")
-        self.pushButton_15.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_15, 3, 3, 1, 1)
-        self.pushButton_15.clicked.connect(lambda: self.setEditText(self.pushButton_15, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_15.setStyleSheet(style)
-        self.pushButton_15.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_15)
-        self.pushButton_15.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_15) 
-
-        self.pushButton_19 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_19.setFont(font)
-        self.pushButton_19.setObjectName("pushButton_19")
-        self.pushButton_19.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_19, 3, 4, 1, 1)
-        self.pushButton_19.clicked.connect(lambda: self.clear(self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_19.setStyleSheet(style)
-        self.pushButton_19.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_19)
-        self.pushButton_19.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_19) 
-
-        self.pushButton_4 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_4.setFont(font)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.pushButton_4.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_4, 4, 0, 1, 1)
-        self.pushButton_4.clicked.connect(lambda: self.setEditText(self.pushButton_4, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_4.setStyleSheet(style)
-        self.pushButton_4.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_4)
-        self.pushButton_4.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_4) 
-
-        self.pushButton_8 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_8.setFont(font)
-        self.pushButton_8.setObjectName("pushButton_8")
-        self.pushButton_8.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_8, 4, 1, 1, 1)
-        self.pushButton_8.clicked.connect(lambda: self.setEditText(self.pushButton_8, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_8.setStyleSheet(style)
-        self.pushButton_8.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_8)
-        self.pushButton_8.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_8)         
-        
-
-        self.pushButton_12 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_12.setFont(font)
-        self.pushButton_12.setObjectName("pushButton_12")
-        self.pushButton_12.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_12, 4, 2, 1, 1)
-        self.pushButton_12.clicked.connect(lambda: self.setEditText(self.pushButton_12, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_12.setStyleSheet(style)
-        self.pushButton_12.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_12)
-        self.pushButton_12.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_12)
-
-
-        self.pushButton_16 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_16.setFont(font)
-        self.pushButton_16.setObjectName("pushButton_16")
-        self.pushButton_16.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_16, 4, 3, 1, 1)
-        self.pushButton_16.clicked.connect(lambda: self.setEditText(self.pushButton_16, self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_16.setStyleSheet(style)
-        self.pushButton_16.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_16)
-        self.pushButton_16.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_16) 
-
-        self.pushButton_20 = QtWidgets.QPushButton(self.centralwidget)
-        font = QtGui.QFont(self.fontname)
-        font.setPointSize(12)
-        self.pushButton_20.setFont(font)
-        self.pushButton_20.setObjectName("pushButton_20")
-        self.pushButton_20.setFixedSize(150, 90)
-        self.gridLayout.addWidget(self.pushButton_20, 4, 4, 1, 1)
-        self.pushButton_20.clicked.connect(lambda: self.button_clicked(self.lineEdit))
-        self.lineEdit.setFocus()
-        self.pushButton_20.setStyleSheet(style)
-        self.pushButton_20.enterEvent = lambda event: self.hoverEnterEvent(self.pushButton_20)
-        self.pushButton_20.leaveEvent = lambda event: self.hoverLeaveEvent(self.pushButton_20) 
-
+        self.buttons = []
+        for text, pos in zip(button_texts, positions):
+            button = QtWidgets.QPushButton(text, self.centralwidget)
+            button.setFont(font)
+            button.setObjectName(f"pushButton_{text}")
+            button.setFixedSize(120, 90)
+            if text in ["%", "!", "/", "+", "-", "=", "(", ")", "*", "^", "√", "ClrScr"]:
+                button.setStyleSheet(style_circle)
+            else:
+                button.setStyleSheet(style_default)
+            button.clicked.connect(lambda checked, text=text: self.button_clicked(text))
+            button.enterEvent = lambda event, button=button: self.hoverEnterEvent(button)
+            button.leaveEvent = lambda event, button=button: self.hoverLeaveEvent(button)
+            self.gridLayout.addWidget(button, *pos)
+            self.buttons.append(button)
+            
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 683, 29))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        # Keyboard shortcuts
+        QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Enter), MainWindow, self.calculate)
+        QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return), MainWindow, self.calculate)
+        QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Equal), MainWindow, self.calculate)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Calculator"))
-        self.pushButton_1.setText(_translate("MainWindow", "7"))
-        self.pushButton_5.setText(_translate("MainWindow", "8"))
-        self.pushButton_9.setText(_translate("MainWindow", "9"))
-        self.pushButton_13.setText(_translate("MainWindow", "/"))
-        self.pushButton_17.setText(_translate("MainWindow", "("))
-        self.pushButton_2.setText(_translate("MainWindow", "4"))
-        self.pushButton_6.setText(_translate("MainWindow", "5"))
-        self.pushButton_10.setText(_translate("MainWindow", "6"))
-        self.pushButton_14.setText(_translate("MainWindow", "*"))
-        self.pushButton_18.setText(_translate("MainWindow", ")"))
-        self.pushButton_3.setText(_translate("MainWindow", "1"))
-        self.pushButton_7.setText(_translate("MainWindow", "2"))
-        self.pushButton_11.setText(_translate("MainWindow", "3"))
-        self.pushButton_15.setText(_translate("MainWindow", "-"))
-        self.pushButton_19.setText(_translate("MainWindow", "ClrScr"))
-        self.pushButton_4.setText(_translate("MainWindow", "0"))
-        self.pushButton_8.setText(_translate("MainWindow", "00"))
-        self.pushButton_12.setText(_translate("MainWindow", "."))
-        self.pushButton_16.setText(_translate("MainWindow", "+"))
-        self.pushButton_20.setText(_translate("MainWindow", "=")) 
-    def setEditText(self, pushButton, lineEdit):
-        num = pushButton.text()
-        lineEdit.setText(str(self.lineEdit.text()+num))
+        for i, text in enumerate([
+            "7", "8", "9", "/",
+            "4", "5", "6", "*",
+            "1", "2", "3", "-",
+            "0", "00", ".", "+",
+            "(", ")", "ClrScr", "=",
+            "%", "√", "^", "!"  # Updated button texts
+        ]):
+            self.buttons[i].setText(_translate("MainWindow", text))
+
     def evaluateExp(self, expression):
         try:
             result = eval(expression)
         except (ValueError, SyntaxError, ArithmeticError):
-            result = "Error manual" + str(type(Exception))
+            result = "Error"
         return result
-    def clear(self, lineEdit):
-        self.lineEdit.setText('')
-    def button_clicked(self, ledit):
-        exp = ledit.text()
-        res = str(self.evaluateExp(exp))
-        ledit.setText(res)
 
+    def button_clicked(self, text):
+        if text == "ClrScr":
+            self.clear()
+        elif text == "=":
+            self.calculate()
+        elif text == "%":
+            self.calculatePercentage()
+        elif text == "√":
+            self.calculateSquareRoot()
+        elif text == "^":
+            self.lineEdit.setText(self.lineEdit.text() + "**")
+        elif text == "!":
+            self.calculateFactorial()
+        else:
+            self.lineEdit.setText(self.lineEdit.text() + text)
+
+    def clear(self):
+        self.lineEdit.setText('')
+
+    def calculate(self):
+        exp = self.lineEdit.text()
+        res = str(self.evaluateExp(exp))
+        self.lineEdit.setText(res)
+
+    def calculatePercentage(self):
+        try:
+            expression = self.lineEdit.text()
+            result = eval(expression) / 100.0
+            self.lineEdit.setText(str(result))
+        except (ValueError, SyntaxError, ArithmeticError):
+            self.lineEdit.setText("Error")
+
+    def calculateSquareRoot(self):
+        try:
+            expression = self.lineEdit.text()
+            result = math.sqrt(eval(expression))
+            self.lineEdit.setText(str(result))
+        except (ValueError, SyntaxError, ArithmeticError):
+            self.lineEdit.setText("Error")
+
+    def calculateFactorial(self):
+        try:
+            n = int(self.lineEdit.text())
+            result = math.factorial(n)
+            self.lineEdit.setText(str(result))
+        except (ValueError, TypeError, ValueError):
+            self.lineEdit.setText("Error")
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    MainWindow.setWindowTitle("Калькулятор")
+    MainWindow.setWindowTitle("Calculator")
     MainWindow.show()
     sys.exit(app.exec_())
